@@ -18,6 +18,8 @@ echo "Select the file you want to review (enter the number):"
 
 while true 
 do
+    # choose files to review
+    echo "Select the file you want to review (enter the number):"
     select file in "$malicious_dir"/*
     do
         if [ -n "$file" ]; then
@@ -27,7 +29,7 @@ do
             echo "1. Restore the file"
             echo "2. Delete the file permanently"
             echo "3. Leave the file as it is"
-            read option
+            read -r -p "Select option:" option
             case $option in
                 1)
                     # restore the file to the original directory
@@ -53,8 +55,9 @@ do
                 esac
             else
                 echo "Invalid selection"
+                break
             if
+            break
         done
-    done
             
             
