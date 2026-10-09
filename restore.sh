@@ -8,16 +8,14 @@ if [ $# -ne 2 ]; then
     exit 1
 fi
 
-# check files in the quarantine directory
-if [ -z "$(ls -A "$malicious_dir")" ]; then
-    echo "No malicious files to review."
-    exit 0
-
-# choose files to review
-echo "Select the file you want to review (enter the number):"
 
 while true 
 do
+    # check files in the quarantine directory
+    if [ -z "$(ls -A "$malicious_dir")" ]; then
+        echo "No malicious files to review."
+        exit 0
+    fi
     # choose files to review
     echo "Select the file you want to review (enter the number):"
     select file in "$malicious_dir"/*
@@ -52,12 +50,11 @@ do
                 *)
                     echo "Invalid option"
                     ;;
-                esac
-            else
-                echo "Invalid selection"
-                break
-            if
+            esac
+        else
+            echo "Invalid selection"
             break
-        done
-            
-            
+        fi
+        break
+    done
+done        
