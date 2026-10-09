@@ -4,6 +4,11 @@ dir="$1"
 malicious_dir="$2"
 interval="$3"
 
+if [ $# -ne 3 ]; then
+    echo " use: $0 <dir> <malicious_dir> <interval_seconds>"
+    exit 1
+fi
+
 # Scan the directory
 scan() {
     for file in "$dir"/*
