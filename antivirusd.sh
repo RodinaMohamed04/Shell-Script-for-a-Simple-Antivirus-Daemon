@@ -33,7 +33,7 @@ scan() {
 
             # Quarantine malicious file
             if [ "$malicious" = true ]; then
-                echo "$file is malicious and it is deleted"
+                echo "$file is malicious and it is DELETED"
                 cp "$file" "$malicious_dir"
                 rm "$file"
             fi
