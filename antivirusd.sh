@@ -9,6 +9,15 @@ if [ $# -ne 3 ]; then
     exit 1
 fi
 
+# Check if the directory exists
+if [ ! -d "$dir" ]; then
+    echo "Error: Directory to scan does not exist."
+    exit 1
+fi
+
+# Create quarantine directory if it does not exist
+mkdir -p "$malicious_dir" || exit 1
+
 # Scan the directory
 scan() {
     for file in "$dir"/*
