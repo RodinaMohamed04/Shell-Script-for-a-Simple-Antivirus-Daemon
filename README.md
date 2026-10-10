@@ -168,9 +168,151 @@ The antivirus daemon can also be started without using Make:
 ```bash
 bash antivirusd.sh test_files quarantine 5
 ```
+## Bonus 1: Cron Job
 
-The restore tool can be started directly using:
+### Overview
+
+The cron-based antivirus scanner performs a scan at scheduled intervals instead of running an infinite monitoring loop.
+
+The `antivirus-cron.sh` script uses the same file classification rules as Part 1. It checks file extensions and file contents for suspicious keywords. If a file is identified as malicious, it is copied to the quarantine directory and removed from the source directory after a successful copy.
+
+### Prerequisites
+
+Before configuring the cron job, make sure that:
+
+- Ubuntu or another Linux distribution is installed and running.
+- Bash is available.
+- The `cron` service is installed and running.
+- The project files, including `antivirus-cron.sh`, are present.
+- The source directory to scan exists.
+- The user has permission to read the source files and write to the quarantine and log directories.
+- The quarantine directory is separate from the source directory.
+- The script has executable permissions.
+
+### Configuration
+
+**Step 1: Navigate to the project directory**
+
+Open the terminal and navigate to the project directory:
 
 ```bash
-bash restore.sh test_files quarantine
+cd "$HOME/assignment 1 os/Shell-Script-for-a-Simple-Antivirus-Daemon"
 ```
+
+**Step 2: Make the script executable**
+
+```bash
+chmod +x antivirus-cron.sh
+```
+
+**Step 3: Prepare the directories**
+
+Create the source and quarantine directories if they do not already exist:
+
+```bash
+mkdir -p test_files quarantine
+```
+
+**Step 4: Test the script manually**
+
+Create a test file containing a suspicious keyword:
+
+```bash
+echo "This file contains a virus." > test_files/cron_test.txt
+```
+
+Run the script manually:
+
+```bash
+./antivirus-cron.sh "$PWD/test_files" "$PWD/quarantine"
+```
+
+Check that the suspicious file is removed from `test_files` and copied to `quarantine`.
+
+**Step 5: Check the cron service**
+
+Check whether the cron service is running:
+
+```bash
+sudo systemctl status cron
+```
+
+If cron is installed but not running, enable and start it:
+
+```bash
+sudo systemctl enable --now cron
+```
+
+If cron is not installed, install it on Ubuntu:
+
+```bash
+sudo apt update
+sudo apt install cron
+sudo systemctl enable --now cron
+```
+
+**Step 6: Configure the cron job**
+
+Open the current user's crontab:
+
+```bash
+crontab -e
+```
+
+Add the following entry as a single line:
+
+```cron
+* * * * * sleep 23; cd "/home/rodina-mohamed/assignment 1 os/Shell-Script-for-a-Simple-Antivirus-Daemon" && ./antivirus-cron.sh "$PWD/test_files" "$PWD/quarantine" >> cron.log 2>&1
+```
+
+Save the file and exit the editor.
+
+The cron expression `* * * * *` schedules the command every minute. The `sleep 23` command delays the scan by approximately 23 seconds after the cron command begins execution.
+
+Standard cron does not support scheduling a job at an exact second. Therefore, this method provides an approximate delay rather than a guarantee of execution at precisely second 23.
+
+The `cd` command changes to the project directory, allowing the script and directories to be referenced using shorter paths. The output and errors are appended to `cron.log`.
+
+**Step 7: Test automatic scanning**
+
+Create a new suspicious test file:
+
+```bash
+echo "This file contains malware." > test_files/automatic_test.txt
+```
+
+Wait for the next scheduled scan, then check the directories:
+
+```bash
+ls -l test_files
+ls -l quarantine
+```
+
+The suspicious file should be removed from the source directory and copied to quarantine.
+
+Inspect the log:
+
+```bash
+cat cron.log
+```
+
+The log records the output and errors produced by the script. If no suspicious files are found and no errors occur, the log may remain empty.
+
+### Cron Expression: Every Third Friday of the Month at 12:31 AM
+
+To run the scan on the third Friday of every month at 12:31 AM, use the following cron entry:
+
+```cron
+31 0 15-21 * * [ "$(date +\%u)" -eq 5 ] && cd "/home/rodina-mohamed/assignment 1 os/Shell-Script-for-a-Simple-Antivirus-Daemon" && ./antivirus-cron.sh "$PWD/test_files" "$PWD/quarantine"
+```
+
+- `31`: Minute 31.
+- `0`: Hour 0, corresponding to 12:00 AM.
+- `15-21`: Days 15 through 21 of the month.
+- `*`: Every month.
+- `*`: Every day of the week, with the weekday restriction enforced by the shell condition.
+- `date +\%u`: Returns the weekday number, where Monday is 1 and Friday is 5.
+
+The third Friday of a month always falls between the 15th and the 21st. The condition checks that the selected date is Friday before executing the scan.
+
+
