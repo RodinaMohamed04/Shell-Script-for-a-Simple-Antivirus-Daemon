@@ -5,7 +5,7 @@ malicious_dir="$2"
 
 # Check number of arguments
 if [ "$#" -ne 2 ]; then
-    echo "Usage: $0 <dir> <malicious_dir>"
+    echo "Use: $0 <dir> <malicious_dir>"
     exit 1
 fi
 
